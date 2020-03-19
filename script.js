@@ -17,6 +17,8 @@ const citiesAPI = 'http://api.travelpayouts.com/data/ru/cities.json',
 
 //// Функции -------------------------
 
+
+// Функция получения данных из запросов к API 
 const getData = (url, callback) => {
 	const request = new XMLHttpRequest();
 
@@ -105,8 +107,14 @@ getData(PROXY + citiesAPI, (data) => {
 
 // получаем цену на 25 мая, рейс: Екатеринбург - Калининград
 // Выкидывает ошибку 400. При переходе по ссылке в API, никакой базы данных там не наблюдаю
-getData(PROXY + calendar, (data) => {
-	console.log(data)
+const currentRequest = calendar + '?origin=SVX&destination=KGD&depart_date=2020-05-25&one_way=true';
+getData(PROXY + currentRequest, (data) => {
+	const dataPrices = JSON.parse(data);
+	const bestPriceFlight = dataPrices.best_prices.filter((elem) => {
+		if (elem.depart_date === '2020-05-25') {return true}
+	});
+	const price = bestPriceFlight[0].value;
+	console.log(price);
 });
 
 
