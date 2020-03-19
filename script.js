@@ -6,6 +6,7 @@ const formSearch = document.querySelector('.form-search'),
 	inputDateDepart = document.querySelector('.input__date-depart');
 
 // Данные --------------------------
+
 let city = [];
 
 
@@ -53,7 +54,9 @@ const showCity = (dropdown, input) => {
 				return fixItem.includes(input.value.toLowerCase());
 			});
 			
-			filterCity.forEach((item) => {
+			const sortedCity = filterCity.map();
+
+			sortedCity.forEach((item) => {
 				const li = document.createElement('li');
 				li.classList.add('dropdown__city');
 				li.textContent = item.name;
@@ -74,6 +77,27 @@ const autoFill = (event, dropdown, input) => {
 	}
 };
 
+const renderCheapDay = (cheapTicket) => {
+	console.log(cheapTicket);
+};
+
+const renderCheapYear = (cheapTickets) => {
+	console.log(cheapTickets);
+};
+
+// Обработка данных, полученных с API календаря цен
+const renderCheap = (data, date) => {
+	const cheapTicketYear = JSON.parse(data).best_prices;
+ 	
+ 	const cheapTicketDay = cheapTicketYear.filter((item) => {
+ 		return item.depart_date === date;
+ 	});
+
+ 	renderCheapDay(cheapTicketDay);
+ 	renderCheapYear(cheapTicketYear);
+ 	
+};
+
 
 
 
@@ -85,11 +109,34 @@ inputCitiesFrom.addEventListener('input', showCity(dropdownCitiesFrom, inputCiti
 // Вывод списка предлагаемых результатов ввода. Откуда
 inputCitiesTo.addEventListener('input', showCity(dropdownCitiesTo, inputCitiesTo));
 
-// Автозаполнение формы. Куда
+// Автозаполнение поля. Куда
 dropdownCitiesFrom.addEventListener('click', () => autoFill(event, dropdownCitiesFrom, inputCitiesFrom));
 
-// Автозаполнение формы. Откуда
+// Автозаполнение поля. Откуда
 dropdownCitiesTo.addEventListener('click', () => autoFill(event, dropdownCitiesTo, inputCitiesTo));
+
+// Работа с результатами формы, формирование объекта с данными полей,
+// отправка запроса на API с ценами.
+formSearch.addEventListener('submit', (event) => {
+	event.preventDefault();
+
+	const cityFrom = city.find((item) => inputCitiesFrom.value === item.name);
+	const cityTo = city.find((item) => inputCitiesTo.value === item.name);
+
+	const formData = {
+		from: cityFrom.code,
+		to: cityTo.code,
+		when: inputDateDepart.value,
+	}
+
+	const requestData = `?origin=${formData.from}&destination=${formData.to}&depart_date=${formData.when}&one_way=true&token=${API_KEY}`;
+
+	getData(calendar + requestData, (data) => {
+		renderCheap(data, formData.when);
+	});
+
+
+});
 
 
 ////// Вызовы функций -----------------------
@@ -103,17 +150,6 @@ getData(PROXY + citiesAPI, (data) => {
 		if (item.name) {return true}
 		return false;
 	});
-});
-
-// Получаем цену на 25 мая, рейс: Екатеринбург - Калининград
-const currentRequest = calendar + '?origin=SVX&destination=KGD&depart_date=2020-05-25&one_way=true';
-getData(PROXY + currentRequest, (data) => {
-	const dataPrices = JSON.parse(data);
-	const bestPriceFlight = dataPrices.best_prices.filter((elem) => {
-		if (elem.depart_date === '2020-05-25') {return true}
-	});
-	const price = bestPriceFlight[0].value;
-	console.log(price);
 });
 
 
