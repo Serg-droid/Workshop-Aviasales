@@ -105,8 +105,7 @@ getData(PROXY + citiesAPI, (data) => {
 	});
 });
 
-// получаем цену на 25 мая, рейс: Екатеринбург - Калининград
-// Выкидывает ошибку 400. При переходе по ссылке в API, никакой базы данных там не наблюдаю
+// Получаем цену на 25 мая, рейс: Екатеринбург - Калининград
 const currentRequest = calendar + '?origin=SVX&destination=KGD&depart_date=2020-05-25&one_way=true';
 getData(PROXY + currentRequest, (data) => {
 	const dataPrices = JSON.parse(data);
